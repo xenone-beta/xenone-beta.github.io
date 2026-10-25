@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>xenone-beta · Bio</title>
+<meta name="description" content="Link in Bio — xenone-beta">
+<meta name="theme-color" content="#0f1418">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- Применяем сохранённую тему до отрисовки, чтобы не было мигания -->
+<script>
+  (function () {
+    var theme = 'dark';
+    try {
+      var saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') theme = saved;
+    } catch (e) {}
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
+
+<style>
+  /* =========================================================
+     Material Design 3 — blue-gray tonal palette
+     ========================================================= */
+
+  /* ---------- Dark theme (по умолчанию) ---------- */
+  :root,
+  :root[data-theme="dark"] {
+    --md-primary:                 #b0c9e4;
+    --md-on-primary:              #16314a;
+    --md-primary-container:       #2e4962;
+    --md-on-primary-container:    #d0e5fb;
+
+    --md-secondary-container:     #3a4756;
+    --md-on-secondary-container:  #d8e4f2;
+
+    --md-surface:                 #0f1418;
+    --md-surface-container:       #1a2025;
+    --md-surface-container-highest: #2c3238;
+    --md-on-surface:              #dee3e9;
+    --md-on-surface-variant:      #bfc7d0;
+
+    --md-outline:                 #89929b;
+    --md-outline-variant:         #3f484f;
+
+    --md-shadow: 0 1px 3px 1px rgba(0,0,0,.30), 0 1px 2px rgba(0,0,0,.40);
+  }
+
+  /* ---------- Light theme ---------- */
+  :root[data-theme="light"] {
+    --md-primary:                 #44617d;
+    --md-on-primary:              #ffffff;
+    --md-primary-container:       #cfe5fc;
+    --md-on-primary-container:    #001d34;
+
+    --md-secondary-container:     #d8e3f0;
+    --md-on-secondary-container:  #111c28;
+
+    --md-surface:                 #f6f9fd;
+    --md-surface-container:       #e9eef4;
+    --md-surface-container-highest: #dde2e8;
+    --md-on-surface:              #171c20;
+    --md-on-surface-variant:      #40484f;
+
+    --md-outline:                 #70787f;
+    --md-outline-variant:         #c0c7ce;
+
+    --md-shadow: 0 1px 3px 1px rgba(23,28,32,.10), 0 1px 2px rgba(23,28,32,.16);
+  }
+
+  /* ---------- Motion ---------- */
+  :root {
+    --md-easing: cubic-bezier(0.2, 0, 0, 1);
+    --md-dur-short: 200ms;
+    --md-dur-medium: 350ms;
+  }
+
+  /* =========================================================
+     Base
+     ========================================================= */
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    -webkit-font-smoothing: antialiased;
+    transition: background-color var(--md-dur-medium) var(--md-easing),
+                color var(--md-dur-medium) var(--md-easing);
+  }
+
+  /* SVG-иконки: наследуют цвет текста через currentColor */
+  .icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    user-select: none;
+  }
+  .icon-fill { fill: currentColor; stroke: none; }
+
+  /* =========================================================
+     Card
+     ========================================================= */
+  .card {
+    width: 100%;
+    max-width: 400px;
+    padding: 32px 24px 24px;
+    border-radius: 28px;
+    background: var(--md-surface-container);
+    box-shadow: var(--md-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: card-in 500ms var(--md-easing) both;
+    transition: background-color var(--md-dur-medium) var(--md-easing),
+                box-shadow var(--md-dur-medium) var(--md-easing);
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(16px) scale(.98); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @media (min-width: 400px) {
+    .card { padding: 32px 32px 24px; }
+  }
+
+  /* =========================================================
+     Profile header
+     ========================================================= */
+  .avatar {
+    position: relative;
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #5b7f9f 0%, #3b5775 45%, #243a52 100%);
+    color: #eaf3fc;
+    font-size: 44px;
+    font-weight: 500;
+    box-shadow: 0 0 0 4px var(--md-surface-container),
+                0 0 0 6px var(--md-primary-container);
+    transition: box-shadow var(--md-dur-medium) var(--md-easing);
+  }
+
+  .avatar img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .avatar .initial { line-height: 1; }
+
+  /* Title Large: 22px/28px в спецификации; по ТЗ — 24px, вес 500 */
+  .name {
+    margin: 20px 0 0;
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-align: center;
+    color: var(--md-on-surface);
+    transition: color var(--md-dur-medium) var(--md-easing);
+  }
+
+  /* Body Medium */
+  .bio {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    letter-spacing: 0.25px;
+    text-align: center;
+    color: var(--md-on-surface-variant);
+    max-width: 30ch;
+    transition: color var(--md-dur-medium) var(--md-easing);
+  }
+
+  /* =========================================================
+     Links — MD3 Filled Tonal Button
+     ========================================================= */
+  .links {
+    width: 100%;
+    margin: 28px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 52px;
+    padding: 0 24px 0 16px;
+    border: 0;
+    border-radius: 26px;
+    overflow: hidden;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    color: var(--md-on-secondary-container);
+    background: var(--md-secondary-container);
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    isolation: isolate;
+    transition: background-color var(--md-dur-medium) var(--md-easing),
+                color var(--md-dur-medium) var(--md-easing),
+                box-shadow var(--md-dur-short) var(--md-easing),
+                transform var(--md-dur-short) var(--md-easing);
+  }
+
+  /* State layer */
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+    transition: opacity var(--md-dur-short) var(--md-easing);
+  }
+
+  .btn:hover { box-shadow: 0 1px 2px rgba(0,0,0,.30), 0 1px 3px 1px rgba(0,0,0,.15); }
+  .btn:hover::before          { opacity: .08; }
+  .btn:focus-visible::before  { opacity: .10; }
+  .btn:active::before         { opacity: .10; }
+  .btn:active                 { box-shadow: none; }
+
+  .btn:focus-visible {
+    outline: 2px solid var(--md-primary);
+    outline-offset: 2px;
+  }
+
+  .btn .icon { width: 22px; height: 22px; }
+
+  /* Ripple */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .16;
+    transform: scale(0);
+    pointer-events: none;
+    z-index: -1;
+    animation: ripple 600ms var(--md-easing) forwards;
+  }
+
+  @keyframes ripple {
+    to { transform: scale(1); opacity: 0; }
+  }
+
+  /* =========================================================
+     Theme row + MD3 Switch
+     ========================================================= */
+  .theme-row {
+    width: 100%;
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--md-outline-variant);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color var(--md-dur-medium) var(--md-easing);
+  }
+
+  .theme-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--md-on-surface-variant);
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    transition: color var(--md-dur-medium) var(--md-easing);
+  }
+
+  .switch {
+    position: relative;
+    width: 52px;
+    height: 32px;
+    padding: 0;
+    border: 2px solid var(--md-outline);
+    border-radius: 16px;
+    background: var(--md-surface-container-highest);
+    cursor: pointer;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--md-dur-short) var(--md-easing),
+                border-color var(--md-dur-short) var(--md-easing);
+  }
+
+  .switch[aria-checked="true"] {
+    background: var(--md-primary);
+    border-color: var(--md-primary);
+  }
+
+  .switch:focus-visible {
+    outline: 2px solid var(--md-primary);
+    outline-offset: 3px;
+  }
+
+  .thumb {
+    position: absolute;
+    top: 50%;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+    margin-top: -12px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--md-outline);
+    color: var(--md-surface-container-highest);
+    transition: left var(--md-dur-short) var(--md-easing),
+                width var(--md-dur-short) var(--md-easing),
+                height var(--md-dur-short) var(--md-easing),
+                margin-top var(--md-dur-short) var(--md-easing),
+                background-color var(--md-dur-short) var(--md-easing),
+                color var(--md-dur-short) var(--md-easing);
+  }
+
+  /* State layer (halo) */
+  .thumb::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border-radius: 50%;
+    background: var(--md-on-surface);
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+    transition: opacity var(--md-dur-short) var(--md-easing),
+                background-color var(--md-dur-short) var(--md-easing);
+  }
+
+  .switch:hover .thumb::before { opacity: .08; }
+  .switch:focus-visible .thumb::before,
+  .switch:active .thumb::before { opacity: .10; }
+
+  .thumb .icon { width: 16px; height: 16px; stroke-width: 2; }
+
+  /* Солнце / луна переключаются по теме */
+  .i-sun { display: none; }
+  :root[data-theme="light"] .i-sun { display: block; }
+  :root[data-theme="light"] .i-moon { display: none; }
+
+  .switch[aria-checked="true"] .thumb {
+    left: 22px;
+    background: var(--md-on-primary);
+    color: var(--md-on-primary-container);
+  }
+
+  .switch[aria-checked="true"] .thumb::before { background: var(--md-primary); }
+
+  /* Нажатие: thumb увеличивается до 28px */
+  .switch:active .thumb { width: 28px; height: 28px; margin-top: -14px; left: 0; }
+  .switch[aria-checked="true"]:active .thumb { left: 20px; }
+
+  /* =========================================================
+     Accessibility / responsive
+     ========================================================= */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 1ms !important;
+      transition-duration: 1ms !important;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .card { padding: 28px 20px 20px; }
+    .name { font-size: 22px; }
+  }
+</style>
+</head>
+
+<body>
+  <main class="card">
+
+    <!-- ===== Профиль ===== -->
+    <header style="display:flex;flex-direction:column;align-items:center;width:100%">
+      <!--
+        АВАТАРКА: положи файл icon.png рядом с index.html.
+        Если файла нет — показывается буква на градиентном фоне.
+      -->
+      <div class="avatar" id="avatar">
+        <span class="initial" id="initial">X</span>
+        <img src="icon.png" alt="Аватар xenone-beta" id="avatarImg">
+      </div>
+
+      <h1 class="name">xenone-beta</h1>
+      <p class="bio">Разработчик на разных яп (C# , Python , CSS , HTML , JS). Делаю небольшие проекты и учусь новому каждый день.</p>
+    </header>
+
+    <!-- ===== Ссылки ===== -->
+    <ul class="links">
+      <li>
+        <!-- TODO: замени на ссылку на своё портфолио -->
+        <a class="btn" href="#" target="_blank" rel="noopener noreferrer">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            <path d="M2 13h20"/>
+          </svg>
+          Portfolio
+        </a>
+      </li>
+      <li>
+        <a class="btn" href="https://github.com/xenone-beta" target="_blank" rel="noopener noreferrer">
+          <svg class="icon icon-fill" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+          </svg>
+          GitHub
+        </a>
+      </li>
+      <li>
+        <!-- TODO: замени username на свой Telegram-ник -->
+        <a class="btn" href="https://t.me/oystrix" target="_blank" rel="noopener noreferrer">
+          <svg class="icon icon-fill" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+          </svg>
+          Telegram
+        </a>
+      </li>
+      <li>
+        <!-- TODO: замени на свою почту -->
+        <a class="btn" href="mailto:mozzyhostting@gmail.com">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="3"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+          Email
+        </a>
+      </li>
+    </ul>
+
+    <!-- ===== Переключатель темы ===== -->
+    <div class="theme-row">
+      <div class="theme-label">
+        <svg class="icon i-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+        </svg>
+        <svg class="icon i-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+        <span>Theme</span>
+      </div>
+
+      <button class="switch" id="themeSwitch" type="button" role="switch"
+              aria-checked="true" aria-label="Тёмная тема">
+        <span class="thumb">
+          <svg class="icon i-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+          <svg class="icon i-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+        </span>
+      </button>
+    </div>
+
+  </main>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var sw = document.getElementById('themeSwitch');
+    var metaTheme = document.querySelector('meta[name="theme-color"]');
+    var surfaceColors = { dark: '#0f1418', light: '#f6f9fd' };
+
+    /* ---------- Тема ---------- */
+    function applyTheme(theme, persist) {
+      var isDark = theme === 'dark';
+      root.setAttribute('data-theme', theme);
+      sw.setAttribute('aria-checked', String(isDark));
+      sw.setAttribute('aria-label', isDark ? 'Тёмная тема включена' : 'Светлая тема включена');
+      if (metaTheme) metaTheme.setAttribute('content', surfaceColors[theme]);
+      if (persist) {
+        try { localStorage.setItem('theme', theme); } catch (e) {}
+      }
+    }
+
+    applyTheme(root.getAttribute('data-theme') || 'dark', false);
+
+    sw.addEventListener('click', function () {
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next, true);
+    });
+
+    /* ---------- Аватар: если icon.png нет — оставляем букву ---------- */
+    var img = document.getElementById('avatarImg');
+    var initial = document.getElementById('initial');
+    img.addEventListener('error', function () { img.remove(); });
+    img.addEventListener('load', function () { initial.style.display = 'none'; });
+    if (img.complete && img.naturalWidth > 0) initial.style.display = 'none';
+
+    /* ---------- Ripple для кнопок ---------- */
+    document.querySelectorAll('.btn').forEach(function (btn) {
+      btn.addEventListener('pointerdown', function (e) {
+        var rect = btn.getBoundingClientRect();
+        var size = Math.max(rect.width, rect.height) * 2;
+        var span = document.createElement('span');
+        span.className = 'ripple';
+        span.style.width = span.style.height = size + 'px';
+        span.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        span.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        btn.appendChild(span);
+        span.addEventListener('animationend', function () { span.remove(); });
+      });
+    });
+  })();
+</script>
+</body>
+</html>
