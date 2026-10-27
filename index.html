@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Каталог каналов</title>
+<title>Форум</title>
 <meta name="theme-color" content="#151b21">
 
 <!-- Telegram Mini App SDK -->
@@ -17,24 +17,28 @@
   :root[data-theme="dark"] {
     --bg:        #151b21;
     --card:      #1e262e;
-    --field:     #1e262e;
     --divider:   #2a343e;
     --text:      #ffffff;
     --hint:      #8b97a3;
     --accent:    #3d9ae8;
     --accent-bg: rgba(61,154,232,.16);
     --press:     rgba(255,255,255,.07);
+    --danger:    #ff6b6b;
+    --gold:      #f5b73b;
+    --overlay:   rgba(0,0,0,.55);
   }
   :root[data-theme="light"] {
     --bg:        #eff2f5;
     --card:      #ffffff;
-    --field:     #ffffff;
     --divider:   #e4e8ec;
     --text:      #0e1317;
     --hint:      #6c7883;
     --accent:    #2a8bd8;
     --accent-bg: rgba(42,139,216,.12);
     --press:     rgba(0,0,0,.06);
+    --danger:    #e5484d;
+    --gold:      #d99a14;
+    --overlay:   rgba(0,0,0,.35);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -54,15 +58,17 @@
   .app {
     max-width: 560px;
     margin: 0 auto;
-    padding: 28px 16px calc(32px + env(safe-area-inset-bottom));
+    padding: 24px 16px calc(40px + env(safe-area-inset-bottom));
   }
+  .app.has-composer { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
 
   svg { display: block; flex-shrink: 0; }
+  button { font: inherit; color: inherit; }
 
   /* =========================================================
-     Шапка
+     Шапка (hero)
      ========================================================= */
-  .hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 4px; }
 
   .hero-avatar {
     position: relative;
@@ -73,183 +79,271 @@
     background: linear-gradient(135deg, #4aa8f0, #2b6fd0);
     color: #fff; font-size: 40px; font-weight: 600;
   }
-  .hero-avatar img {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%; object-fit: cover;
-  }
+  .hero-avatar.small { width: 72px; height: 72px; font-size: 34px; }
+  .hero-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
-  .hero h1 {
-    margin: 18px 0 0;
-    font-size: 32px; line-height: 38px; font-weight: 700; letter-spacing: -.3px;
-  }
-
-  .hero p {
-    margin: 10px 0 0;
-    max-width: 34ch;
-    font-size: 17px; line-height: 23px;
-    color: var(--hint);
-  }
-  .hero p a {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 500;
-    white-space: nowrap;
-    cursor: pointer;
-  }
+  .hero h1 { margin: 18px 0 0; font-size: 32px; line-height: 38px; font-weight: 700; letter-spacing: -.3px; }
+  .hero p { margin: 10px 0 0; max-width: 34ch; font-size: 17px; line-height: 23px; color: var(--hint); }
+  .hero p a { color: var(--accent); text-decoration: none; font-weight: 500; white-space: nowrap; cursor: pointer; }
 
   /* =========================================================
      Поиск
      ========================================================= */
   .search {
-    margin-top: 28px;
-    height: 48px;
-    padding: 0 16px;
+    margin-top: 26px;
+    height: 48px; padding: 0 16px;
     display: flex; align-items: center; gap: 12px;
-    background: var(--field);
+    background: var(--card);
     border-radius: 16px;
     color: var(--hint);
   }
   .search svg { width: 22px; height: 22px; }
   .search input {
-    flex: 1; min-width: 0;
-    height: 100%;
+    flex: 1; min-width: 0; height: 100%;
     border: 0; outline: 0; background: transparent;
-    font: inherit; font-size: 17px;
-    color: var(--text);
+    font: inherit; font-size: 17px; color: var(--text);
   }
   .search input::placeholder { color: var(--hint); }
   .search input::-webkit-search-cancel-button { display: none; }
-  .search .clear {
-    display: none;
-    width: 28px; height: 28px; border: 0; padding: 0;
-    border-radius: 50%; background: var(--press); color: var(--hint);
-    place-items: center; cursor: pointer;
-  }
-  .search.has-text .clear { display: grid; }
-  .search .clear svg { width: 14px; height: 14px; }
 
   /* =========================================================
-     Фильтр по типу
-     ========================================================= */
-  .chips {
-    display: flex; gap: 8px;
-    margin: 16px -16px 0;
-    padding: 0 16px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .chips::-webkit-scrollbar { display: none; }
-
-  .chip {
-    flex-shrink: 0;
-    height: 34px; padding: 0 16px;
-    border: 0; border-radius: 17px;
-    background: var(--card); color: var(--hint);
-    font: inherit; font-size: 15px; font-weight: 500;
-    cursor: pointer;
-    transition: background-color .2s ease, color .2s ease;
-  }
-  .chip[aria-pressed="true"] { background: var(--accent); color: #fff; }
-
-  /* =========================================================
-     Секции и строки
+     Секции и строки списка
      ========================================================= */
   .section-title {
     display: flex; align-items: baseline; gap: 8px;
     margin: 28px 4px 12px;
     font-size: 24px; line-height: 30px; font-weight: 700; letter-spacing: -.2px;
   }
-  .section-title small {
-    font-size: 15px; font-weight: 500; color: var(--hint);
-  }
+  .section-title small { font-size: 15px; font-weight: 500; color: var(--hint); }
 
-  .list {
-    background: var(--card);
-    border-radius: 18px;
-    overflow: hidden;
-  }
+  .list { background: var(--card); border-radius: 18px; overflow: hidden; }
+  .list + .list { margin-top: 12px; }
 
   .row {
     position: relative;
     display: flex; align-items: center; gap: 14px;
     min-height: 72px;
     padding: 12px 8px 12px 16px;
-    cursor: pointer;
-    outline: none;
+    cursor: pointer; outline: none;
     transition: background-color .15s ease;
     animation: row-in .35s cubic-bezier(.2,0,0,1) both;
   }
   .row + .row::before {
-    content: '';
-    position: absolute; top: 0; right: 0; left: 78px;
+    content: ''; position: absolute; top: 0; right: 0; left: 78px;
     height: 1px; background: var(--divider);
   }
   .row:active, .row:focus-visible { background: var(--press); }
   @media (hover: hover) { .row:hover { background: var(--press); } }
 
-  @keyframes row-in {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: none; }
-  }
+  @keyframes row-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  .row-avatar {
+  .avatar {
     position: relative;
     width: 48px; height: 48px;
-    border-radius: 50%;
-    overflow: hidden;
+    border-radius: 50%; overflow: hidden;
     display: grid; place-items: center;
     color: #fff; font-size: 21px; font-weight: 600;
     flex-shrink: 0;
   }
-  .row-avatar img {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%; object-fit: cover;
-  }
+  .avatar.sm { width: 38px; height: 38px; font-size: 17px; }
+  .avatar.emoji { font-size: 24px; }
+  .avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
   .row-body { flex: 1; min-width: 0; }
   .row-title {
+    display: flex; align-items: center; gap: 6px;
     font-size: 17px; line-height: 22px; font-weight: 600;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
+  .row-title span.t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .row-title svg { width: 15px; height: 15px; color: var(--accent); }
   .row-sub {
-    margin-top: 2px;
-    font-size: 15px; line-height: 20px; color: var(--hint);
+    margin-top: 2px; font-size: 15px; line-height: 20px; color: var(--hint);
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
-
-  .row-actions { display: flex; align-items: center; flex-shrink: 0; }
-
-  .icon-btn {
-    width: 40px; height: 40px;
-    border: 0; padding: 0; border-radius: 50%;
-    background: transparent; color: var(--hint);
-    display: grid; place-items: center;
-    cursor: pointer;
-    transition: background-color .15s ease, color .15s ease, transform .15s ease;
-  }
-  .icon-btn svg { width: 22px; height: 22px; }
-  .icon-btn:active { background: var(--press); transform: scale(.92); }
-  .icon-btn.fav-on { color: #f5b73b; }
-
   .chev { width: 24px; height: 24px; color: var(--hint); opacity: .7; margin-right: 4px; }
 
-  /* Строка действия («Предложить канал») */
   .row.action { min-height: 64px; }
   .row.action .row-title { color: var(--accent); font-weight: 500; }
   .action-icon { width: 48px; height: 48px; display: grid; place-items: center; color: var(--accent); }
   .action-icon svg { width: 44px; height: 44px; }
-  .row.action + .row::before { left: 78px; }
 
-  .empty {
-    margin-top: 40px; text-align: center; color: var(--hint);
-    font-size: 17px; line-height: 24px;
+  .load-more {
+    display: block; width: 100%; margin-top: 12px; height: 48px;
+    border: 0; border-radius: 16px; background: var(--card); color: var(--accent);
+    font-size: 16px; font-weight: 500; cursor: pointer;
   }
+  .load-more:active { background: var(--press); }
+
+  .empty { margin-top: 48px; text-align: center; color: var(--hint); font-size: 17px; line-height: 24px; padding: 0 12px; }
   .empty svg { width: 48px; height: 48px; margin: 0 auto 12px; opacity: .6; }
+  .empty b { display: block; color: var(--text); margin-bottom: 4px; }
 
-  .footer {
-    margin-top: 32px; text-align: center;
-    font-size: 13px; color: var(--hint); opacity: .8;
+  .skeleton { height: 72px; background: var(--card); border-radius: 18px; margin-top: 12px; position: relative; overflow: hidden; }
+  .skeleton::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, var(--press), transparent);
+    animation: shimmer 1.2s infinite;
   }
+  @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+  /* =========================================================
+     Тема: заголовок и сообщения
+     ========================================================= */
+  .topic-head { display: flex; align-items: flex-start; gap: 8px; margin: 4px 4px 0; }
+  .topic-head h1 { flex: 1; margin: 0; font-size: 26px; line-height: 32px; font-weight: 700; letter-spacing: -.3px; word-break: break-word; }
+  .topic-meta { margin: 8px 4px 0; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 14px; color: var(--hint); }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    height: 20px; padding: 0 8px; border-radius: 10px;
+    background: var(--accent-bg); color: var(--accent);
+    font-size: 12px; font-weight: 600; letter-spacing: .1px;
+  }
+  .badge.warn { background: rgba(245,183,59,.16); color: var(--gold); }
+  .badge svg { width: 12px; height: 12px; }
+
+  .post { background: var(--card); border-radius: 18px; padding: 14px 16px 10px; margin-top: 12px; animation: row-in .3s cubic-bezier(.2,0,0,1) both; }
+  .post-head { display: flex; align-items: center; gap: 10px; }
+  .post-who { flex: 1; min-width: 0; }
+  .post-name { display: flex; align-items: center; gap: 6px; font-size: 16px; line-height: 20px; font-weight: 600; }
+  .post-name span.n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .post-time { font-size: 13px; line-height: 18px; color: var(--hint); }
+  .post-body { margin-top: 10px; font-size: 16px; line-height: 23px; white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
+  .post-body a { color: var(--accent); text-decoration: none; cursor: pointer; }
+  .post-foot { display: flex; align-items: center; gap: 4px; margin: 6px -8px 0; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 36px; padding: 0 12px; border: 0; border-radius: 18px;
+    background: transparent; color: var(--hint);
+    font-size: 15px; font-weight: 500; cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, transform .15s ease;
+  }
+  .pill svg { width: 20px; height: 20px; }
+  .pill:active { background: var(--press); transform: scale(.95); }
+  .pill.on { color: var(--danger); }
+  .pill.grow { margin-left: auto; }
+
+  .icon-btn {
+    width: 40px; height: 40px; border: 0; padding: 0; border-radius: 50%;
+    background: transparent; color: var(--hint);
+    display: grid; place-items: center; cursor: pointer; flex-shrink: 0;
+    transition: background-color .15s ease, transform .15s ease;
+  }
+  .icon-btn svg { width: 22px; height: 22px; }
+  .icon-btn:active { background: var(--press); transform: scale(.92); }
+
+  .notice {
+    margin-top: 16px; padding: 14px 16px; border-radius: 16px;
+    background: var(--card); color: var(--hint); font-size: 15px; line-height: 21px; text-align: center;
+  }
+  .notice b { color: var(--text); }
+
+  /* =========================================================
+     Поле ответа
+     ========================================================= */
+  .composer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    background: var(--bg);
+    border-top: 1px solid var(--divider);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  }
+  .composer-in { max-width: 560px; margin: 0 auto; display: flex; align-items: flex-end; gap: 10px; }
+  .composer textarea {
+    flex: 1; min-width: 0; resize: none;
+    min-height: 44px; max-height: 140px; padding: 11px 16px;
+    border: 0; outline: 0; border-radius: 22px;
+    background: var(--card); color: var(--text);
+    font: inherit; font-size: 16px; line-height: 22px;
+  }
+  .composer textarea::placeholder { color: var(--hint); }
+  .send {
+    width: 44px; height: 44px; border: 0; border-radius: 50%;
+    background: var(--accent); color: #fff; display: grid; place-items: center;
+    cursor: pointer; flex-shrink: 0; transition: opacity .15s ease, transform .15s ease;
+  }
+  .send svg { width: 22px; height: 22px; }
+  .send:active { transform: scale(.92); }
+  .send:disabled { opacity: .45; cursor: default; }
+
+  /* =========================================================
+     Форма новой темы
+     ========================================================= */
+  .page-title { margin: 4px 4px 0; font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -.3px; }
+  .page-sub { margin: 6px 4px 0; font-size: 15px; line-height: 21px; color: var(--hint); }
+
+  .field-label { display: block; margin: 20px 4px 8px; font-size: 14px; font-weight: 500; color: var(--hint); }
+  .field {
+    display: block; width: 100%; border: 0; outline: 0;
+    background: var(--card); color: var(--text); border-radius: 16px;
+    padding: 0 16px; font: inherit; font-size: 17px;
+  }
+  input.field, select.field { height: 52px; }
+  textarea.field { min-height: 180px; padding: 14px 16px; line-height: 23px; resize: vertical; }
+  .field::placeholder { color: var(--hint); }
+  select.field {
+    appearance: none; -webkit-appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238b97a3' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 44px;
+  }
+  .counter { margin: 6px 6px 0; text-align: right; font-size: 13px; color: var(--hint); }
+
+  .btn-primary {
+    display: block; width: 100%; height: 52px; margin-top: 24px;
+    border: 0; border-radius: 16px; background: var(--accent); color: #fff;
+    font-size: 17px; font-weight: 600; cursor: pointer; transition: opacity .15s ease, transform .15s ease;
+  }
+  .btn-primary:active { transform: scale(.985); }
+  .btn-primary:disabled { opacity: .5; cursor: default; }
+
+  /* =========================================================
+     Жалобы
+     ========================================================= */
+  .report { background: var(--card); border-radius: 18px; padding: 14px 16px; margin-top: 12px; }
+  .report-top { font-size: 13px; color: var(--hint); line-height: 18px; }
+  .report-title { margin-top: 4px; font-size: 16px; font-weight: 600; line-height: 21px; cursor: pointer; }
+  .report-body { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--press); font-size: 15px; line-height: 21px; white-space: pre-wrap; word-break: break-word; }
+  .report-reason { margin-top: 8px; font-size: 14px; color: var(--hint); }
+  .report-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .report-actions button {
+    flex: 1; height: 40px; border: 0; border-radius: 12px; background: var(--press);
+    font-size: 15px; font-weight: 500; cursor: pointer;
+  }
+  .report-actions .danger { background: rgba(255,107,107,.16); color: var(--danger); }
+
+  /* =========================================================
+     Нижнее меню и уведомления
+     ========================================================= */
+  .overlay {
+    position: fixed; inset: 0; z-index: 50; background: var(--overlay);
+    display: flex; align-items: flex-end; justify-content: center;
+    animation: fade .2s ease both;
+  }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes rise { from { transform: translateY(100%); } to { transform: none; } }
+  .sheet {
+    width: 100%; max-width: 560px; background: var(--card);
+    border-radius: 22px 22px 0 0; padding: 8px 0 calc(12px + env(safe-area-inset-bottom));
+    animation: rise .28s cubic-bezier(.2,0,0,1) both;
+  }
+  .sheet-grip { width: 36px; height: 4px; border-radius: 2px; background: var(--divider); margin: 4px auto 8px; }
+  .sheet button {
+    display: flex; align-items: center; width: 100%; height: 56px; padding: 0 22px;
+    border: 0; background: transparent; font-size: 17px; text-align: left; cursor: pointer;
+  }
+  .sheet button:active { background: var(--press); }
+  .sheet button.danger { color: var(--danger); }
+  .sheet button.cancel { color: var(--accent); font-weight: 600; justify-content: center; margin-top: 4px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 60;
+    transform: translateX(-50%); max-width: calc(100% - 32px);
+    padding: 11px 18px; border-radius: 22px;
+    background: #2b3640; color: #fff; font-size: 15px; line-height: 20px; text-align: center;
+    box-shadow: 0 6px 24px rgba(0,0,0,.35);
+    animation: fade .2s ease both;
+  }
+  .toast.err { background: #8c2f35; }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
@@ -258,390 +352,745 @@
 </head>
 
 <body>
-<div class="app">
-
-  <header class="hero">
-    <!-- АВАТАРКА: положи icon.png рядом с index.html. Нет файла — покажется буква. -->
-    <div class="hero-avatar" id="heroAvatar">
-      <span id="heroInitial"></span>
-      <img src="icon.png" alt="" id="heroImg">
-    </div>
-    <h1 id="title"></h1>
-    <p><span id="desc"></span> <a id="learnMore" role="link" tabindex="0"></a></p>
-  </header>
-
-  <label class="search" id="searchBox">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
-    </svg>
-    <input id="q" type="search" placeholder="Поиск" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Поиск">
-    <button class="clear" id="clear" type="button" aria-label="Очистить">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-    </button>
-  </label>
-
-  <div class="chips" id="chips" role="group" aria-label="Тип"></div>
-
-  <main id="content"></main>
-
-  <div class="footer" id="footer"></div>
-</div>
+<div class="app" id="app"></div>
 
 <script>
 /* =============================================================
    НАСТРОЙКИ — меняй здесь
    ============================================================= */
 const CONFIG = {
-  title: 'Каталог каналов',
-  description: 'Подборка полезных Telegram-каналов, групп и ботов.',
-  learnMoreText: 'Подробнее',
-  learnMoreUrl: 'https://t.me/atestnews',        // TODO: ссылка «Подробнее» (свой канал / пост)
-  suggestText: 'Предложить канал',
-  suggestUrl: 'https://t.me/MACTEPCTBO',          // TODO: твой юзернейм, куда писать предложения
-  shareText: 'Поделиться каталогом',
-  shareUrl: 'https://t.me/BotApp',          // TODO: ссылка на твоего бота / приложение
-  shareMessage: 'Подборка полезных Telegram-каналов',
-  footer: ''                                    // например: '© xenone-beta'
+  // Адрес твоего API (Cloudflare Worker). Появится после деплоя бэкенда.
+  api: 'https://forum-api.sliva-s-v6436.workers.dev',
+
+  title: 'Форум',
+  description: 'Создавайте темы, обсуждайте и находите единомышленников.',
+  learnMoreText: 'Правила',
+  learnMoreUrl: 'https://t.me/telegram'   // TODO: ссылка на правила форума (пост или канал)
 };
 
 /* =============================================================
-   КАТАЛОГ — добавляй свои каналы сюда
-   -------------------------------------------------------------
-   name     — название
-   handle   — юзернейм без @  (или вместо него url: 'https://t.me/+инвайт')
-   desc     — короткое описание
-   category — раздел (секции создаются автоматически)
-   type     — 'channel' | 'group' | 'bot'
-   icon     — (необязательно) путь к картинке, например 'img/news.png'
-   ============================================================= */
-const CHANNELS = [
-  { name: 'ATestNews',  handle: 'atestnews',    desc: 'Some news',   category: 'Telegram', type: 'channel' },
-  { name: 'Cloudly Hosting',    handle: 'CloudlyHost',       desc: 'Python Hosting',                    category: 'Telegram', type: 'channel' },
-  { name: '[T] Room',  handle: 'savetest_vf',desc: 'Good channel with good news',     category: 'Telegram', type: 'channel' },
-  { name: 'Bot News',       handle: 'ABotNews',     desc: 'Something about bots',          category: 'Разработка', type: 'channel' },
-  { name: 'Bot Talk',       handle: 'BotTalk',     desc: 'Chat About bots developing',                  category: 'Разработка', type: 'group' },
-  { name: 'BotApp',       handle: 'BotApp',     desc: 'This Bot',                  category: 'Разработка', type: 'Bot' }
-
-  /* Шаблон для нового канала:
-  { name: 'Название', handle: 'username', desc: 'О чём канал', category: 'Раздел', type: 'channel' },
-  */
-];
-
-/* =============================================================
-   Код приложения
+   Приложение
    ============================================================= */
 (function () {
+  'use strict';
+
   const tg = window.Telegram && window.Telegram.WebApp;
-  const TYPE_LABEL = { channel: 'Канал', group: 'Группа', bot: 'Бот' };
-  const FILTERS = [
-    { id: 'all', label: 'Все' },
-    { id: 'channel', label: 'Каналы' },
-    { id: 'group', label: 'Группы' },
-    { id: 'bot', label: 'Боты' }
-  ];
+  const app = document.getElementById('app');
 
-  const $ = (id) => document.getElementById(id);
-  const state = { q: '', type: 'all', favs: new Set() };
-
-  const SVG = {
-    chevron: '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>',
-    star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.9L12 3.5Z"/></svg>',
-    starOn: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.9L12 3.5Z"/></svg>',
-    plus: '<svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="22" cy="22" r="17"/><path d="M22 14v16M14 22h16"/></svg>',
-    share: '<svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="22" cy="22" r="17"/><path d="M22 28V14m0 0-6 6m6-6 6 6"/></svg>',
-    empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8.5 11h5"/></svg>'
+  const S = {
+    token: null,
+    me: null,
+    inTelegram: !!(tg && tg.initData),
+    authError: '',
+    cats: null
   };
 
-  /* ---------- Тема (из Telegram или системная) ---------- */
+  /* ---------- Иконки ---------- */
+  const I = {
+    chev: '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+    plus: '<svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="22" cy="22" r="17"/><path d="M22 14v16M14 22h16"/></svg>',
+    flag: '<svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="22" cy="22" r="17"/><path d="M16 29V15m0 0c3-2 6 2 9 0s3-1 3-1v8s0 1-3 1-6-2-9 0"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14.5 3.5 20.5 9.5l-2 .8-3 3 .4 4.2-1.3 1.3-3.2-3.2-4.9 4.9-1-1 4.9-4.9L6.2 10.4l1.3-1.3 4.2.4 3-3 .8-2Z"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+    dots: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5.5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="18.5" r="1.8"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20Z"/></svg>',
+    heartOn: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20Z"/></svg>',
+    reply: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 8 4.5 12.5 9 17"/><path d="M5 12.5h8.5a6 6 0 0 1 6 6"/></svg>',
+    send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m0 0-6 6m6-6 6 6"/></svg>',
+    empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V17A2.5 2.5 0 0 1 4 14.5v-8Z"/></svg>'
+  };
+
+  /* ---------- Помощники ---------- */
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    for (const k in props || {}) {
+      const v = props[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k === 'html') el.innerHTML = v;          // только для статичных SVG выше
+      else if (k === 'style') el.style.cssText = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (const kid of kids.flat()) {
+      if (kid == null || kid === false) continue;
+      el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    }
+    return el;
+  }
+  const svg = (markup) => h('span', { html: markup, style: 'display:contents' });
+
+  const GRADIENTS = [
+    ['#f7971e', '#e65c00'], ['#43c6ac', '#1d8a77'], ['#8e6cf0', '#5a3fc0'],
+    ['#f2709c', '#d1356b'], ['#4aa8f0', '#2b6fd0'], ['#6dd35f', '#35a02b'], ['#f5b73b', '#d98a0b']
+  ];
+  function gradient(seed) {
+    let n = 0;
+    const s = String(seed);
+    for (let i = 0; i < s.length; i++) n = (n * 31 + s.charCodeAt(i)) >>> 0;
+    const g = GRADIENTS[n % GRADIENTS.length];
+    return `linear-gradient(135deg,${g[0]},${g[1]})`;
+  }
+
+  function userAvatar(name, id, photo, size) {
+    const el = h('div', { class: 'avatar' + (size ? ' ' + size : ''), style: 'background:' + gradient(id) },
+      h('span', null, (String(name).trim()[0] || '?').toUpperCase()));
+    if (photo && /^https:\/\//.test(photo)) {
+      const img = h('img', { alt: '', loading: 'lazy', src: photo });
+      img.addEventListener('error', () => img.remove());
+      el.append(img);
+    }
+    return el;
+  }
+
+  function emojiAvatar(emoji, seed) {
+    return h('div', { class: 'avatar emoji', style: 'background:' + gradient(seed) }, emoji || '💬');
+  }
+
+  function plural(n, forms) {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return forms[0];
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return forms[1];
+    return forms[2];
+  }
+
+  function ago(ts) {
+    const d = Math.floor(Date.now() / 1000) - ts;
+    if (d < 45) return 'только что';
+    if (d < 3600) return Math.max(1, Math.round(d / 60)) + ' мин назад';
+    if (d < 86400) return Math.round(d / 3600) + ' ч назад';
+    if (d < 86400 * 7) return Math.round(d / 86400) + ' дн назад';
+    return new Date(ts * 1000).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  const isMod = () => !!S.me && (S.me.role === 'mod' || S.me.role === 'admin');
+  const isAdmin = () => !!S.me && S.me.role === 'admin';
+  const canWrite = () => !!S.me && !S.me.banned;
+
+  function haptic(kind) {
+    try {
+      if (!tg || !tg.HapticFeedback) return;
+      if (kind === 'ok') tg.HapticFeedback.notificationOccurred('success');
+      else if (kind === 'err') tg.HapticFeedback.notificationOccurred('error');
+      else tg.HapticFeedback.impactOccurred('light');
+    } catch (e) {}
+  }
+
+  function openLink(url) {
+    try {
+      if (tg && /^https:\/\/t\.me\//i.test(url) && tg.openTelegramLink) return tg.openTelegramLink(url);
+      if (tg && tg.openLink) return tg.openLink(url);
+    } catch (e) {}
+    window.open(url, '_blank', 'noopener');
+  }
+
+  let toastTimer;
+  function toast(text, isErr) {
+    document.querySelectorAll('.toast').forEach((t) => t.remove());
+    const el = h('div', { class: 'toast' + (isErr ? ' err' : '') }, text);
+    document.body.append(el);
+    haptic(isErr ? 'err' : 'ok');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.remove(), 2800);
+  }
+
+  function confirmBox(text) {
+    return new Promise((resolve) => {
+      if (tg && tg.showConfirm && tg.isVersionAtLeast && tg.isVersionAtLeast('6.2')) tg.showConfirm(text, resolve);
+      else resolve(window.confirm(text));
+    });
+  }
+
+  // Нижнее меню действий
+  function sheet(items) {
+    const close = () => ov.remove();
+    const ov = h('div', { class: 'overlay', onclick: (e) => { if (e.target === ov) close(); } },
+      h('div', { class: 'sheet', role: 'menu' },
+        h('div', { class: 'sheet-grip' }),
+        items.filter(Boolean).map((it) =>
+          h('button', { class: it.danger ? 'danger' : '', onclick: () => { close(); it.run(); } }, it.label)),
+        h('button', { class: 'cancel', onclick: close }, 'Отмена')));
+    document.body.append(ov);
+  }
+
+  // Текст сообщения: безопасно, ссылки http(s) становятся кликабельными
+  function renderText(text) {
+    const frag = document.createDocumentFragment();
+    const re = /https?:\/\/[^\s<]+[^\s<.,;:!?)\]}"']/gi;
+    let last = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > last) frag.append(text.slice(last, m.index));
+      const url = m[0];
+      frag.append(h('a', { href: url, rel: 'noopener noreferrer', onclick: (e) => { e.preventDefault(); openLink(url); } }, url));
+      last = m.index + url.length;
+    }
+    if (last < text.length) frag.append(text.slice(last));
+    return frag;
+  }
+
+  /* ---------- API ---------- */
+  async function api(path, opts) {
+    opts = opts || {};
+    if (!/^https?:\/\//.test(CONFIG.api) || CONFIG.api.includes('ВАШ-САБДОМЕН')) {
+      throw new Error('Не указан адрес API в CONFIG.api');
+    }
+    const headers = {};
+    if (opts.body) headers['Content-Type'] = 'application/json';
+    if (S.token) headers.Authorization = 'Bearer ' + S.token;
+    let res;
+    try {
+      res = await fetch(CONFIG.api + path, {
+        method: opts.method || 'GET',
+        headers,
+        body: opts.body ? JSON.stringify(opts.body) : undefined
+      });
+    } catch (e) {
+      throw new Error('Нет соединения с сервером');
+    }
+    let data = {};
+    try { data = await res.json(); } catch (e) {}
+    if (res.status === 401 && !opts.retried && S.inTelegram) {
+      S.token = null; S.me = null;
+      await login();
+      if (S.token) return api(path, Object.assign({}, opts, { retried: true }));
+    }
+    if (!res.ok) throw new Error(data.error || 'Ошибка ' + res.status);
+    return data;
+  }
+
+  async function login() {
+    if (!S.inTelegram) return;
+    try {
+      const data = await api('/api/auth', { method: 'POST', body: { initData: tg.initData }, retried: true });
+      S.token = data.token;
+      S.me = data.user;
+      S.authError = '';
+      try { sessionStorage.setItem('forum_token', S.token); } catch (e) {}
+    } catch (e) {
+      S.authError = e.message;
+    }
+  }
+
+  async function restoreSession() {
+    let saved = null;
+    try { saved = sessionStorage.getItem('forum_token'); } catch (e) {}
+    if (saved) {
+      S.token = saved;
+      try { S.me = (await api('/api/me', { retried: true })).user; return; } catch (e) { S.token = null; S.me = null; }
+    }
+    await login();
+  }
+
+  async function getCats() {
+    if (!S.cats) S.cats = (await api('/api/categories')).categories;
+    return S.cats;
+  }
+
+  /* ---------- Каркас страниц ---------- */
+  let navId = 0;
+  let composerEl = null;
+
+  function mount(nodes, withComposer) {
+    if (composerEl) { composerEl.remove(); composerEl = null; }
+    app.classList.toggle('has-composer', !!withComposer);
+    app.replaceChildren(...[].concat(nodes).filter(Boolean));
+  }
+
+  function loading() {
+    mount([h('div', { class: 'skeleton', style: 'margin-top:24px' }), h('div', { class: 'skeleton' }), h('div', { class: 'skeleton' })]);
+  }
+
+  function errorView(msg, retry) {
+    mount(h('div', { class: 'empty' }, svg(I.empty), h('b', null, 'Не получилось загрузить'), msg,
+      retry ? h('button', { class: 'load-more', onclick: retry }, 'Повторить') : null));
+  }
+
+  function emptyView(title, text) {
+    return h('div', { class: 'empty' }, svg(I.empty), h('b', null, title), text || '');
+  }
+
+  function hero(opts) {
+    const av = h('div', { class: 'hero-avatar' + (opts.small ? ' small' : '') });
+    if (opts.emoji) {
+      av.style.background = gradient(opts.seed || opts.title);
+      av.textContent = opts.emoji;
+    } else {
+      const letter = h('span', null, (opts.title.trim()[0] || 'F').toUpperCase());
+      const img = h('img', { src: 'icon.png', alt: '' });
+      img.addEventListener('error', () => img.remove());
+      img.addEventListener('load', () => { letter.style.display = 'none'; });
+      av.append(letter, img);
+    }
+    const p = h('p', null, opts.description || '');
+    if (opts.linkText) {
+      p.append(' ', h('a', { role: 'link', tabindex: '0', onclick: () => openLink(opts.linkUrl) }, opts.linkText + ' ›'));
+    }
+    return h('header', { class: 'hero' }, av, h('h1', null, opts.title), p);
+  }
+
+  function actionRow(icon, text, onClick) {
+    return h('div', { class: 'row action', role: 'button', tabindex: '0',
+      onclick: () => { haptic(); onClick(); },
+      onkeydown: (e) => { if (e.key === 'Enter') onClick(); } },
+      h('div', { class: 'action-icon' }, svg(icon)),
+      h('div', { class: 'row-body' }, h('div', { class: 'row-title' }, text)));
+  }
+
+  function topicRow(t, i) {
+    const go = () => { haptic(); location.hash = '#/t/' + t.id; };
+    return h('div', { class: 'row', role: 'link', tabindex: '0', onclick: go,
+      style: 'animation-delay:' + Math.min(i * 25, 250) + 'ms',
+      onkeydown: (e) => { if (e.key === 'Enter') go(); } },
+      userAvatar(t.author_name, t.author_id, t.author_photo),
+      h('div', { class: 'row-body' },
+        h('div', { class: 'row-title' },
+          t.pinned ? svg(I.pin) : null,
+          t.closed ? svg(I.lock) : null,
+          h('span', { class: 't' }, t.title)),
+        h('div', { class: 'row-sub' },
+          t.category_title + ' · ' + t.author_name + ' · ' +
+          t.replies_count + ' ' + plural(t.replies_count, ['ответ', 'ответа', 'ответов']) + ' · ' + ago(t.last_post_at))),
+      svg(I.chev));
+  }
+
+  // Список тем с кнопкой «Показать ещё»
+  function topicList(base) {
+    const box = h('div');
+    const list = h('div', { class: 'list' });
+    const more = h('button', { class: 'load-more', style: 'display:none' }, 'Показать ещё');
+    let offset = 0, count = 0;
+    const my = navId;
+
+    async function load() {
+      more.disabled = true;
+      try {
+        const sep = base.includes('?') ? '&' : '?';
+        const data = await api(base + sep + 'offset=' + offset);
+        if (my !== navId && box.isConnected === false) return;
+        data.topics.forEach((t) => list.append(topicRow(t, count++)));
+        offset += data.topics.length;
+        more.style.display = data.has_more ? 'block' : 'none';
+        if (!count) { box.replaceChildren(emptyView('Пока нет тем', 'Создайте первую!')); return; }
+      } catch (e) {
+        toast(e.message, true);
+      }
+      more.disabled = false;
+    }
+    more.addEventListener('click', load);
+    box.append(list, more);
+    load();
+    return box;
+  }
+
+  /* ---------- Страница: главная ---------- */
+  async function viewHome() {
+    const my = ++navId;
+    loading();
+    let cats;
+    try { cats = await getCats(); } catch (e) { if (my === navId) errorView(e.message, viewHome); return; }
+    if (my !== navId) return;
+
+    const results = h('div');
+    const sections = h('div');
+    let timer;
+
+    const input = h('input', { type: 'search', placeholder: 'Поиск по темам', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'search', 'aria-label': 'Поиск' });
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const q = input.value.trim();
+        navId++;
+        if (!q) { results.replaceChildren(); sections.style.display = ''; return; }
+        sections.style.display = 'none';
+        results.replaceChildren(h('h2', { class: 'section-title' }, 'Результаты'), topicList('/api/topics?q=' + encodeURIComponent(q)));
+      }, 300);
+    });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') input.blur(); });
+
+    const actions = h('div', { class: 'list', style: 'margin-top:28px' },
+      actionRow(I.plus, 'Создать тему', () => requireWrite(() => { location.hash = '#/new'; })));
+    if (isMod()) actions.append(actionRow(I.flag, 'Жалобы', () => { location.hash = '#/reports'; }));
+
+    const catRows = h('div', { class: 'list' }, cats.map((c, i) =>
+      h('div', { class: 'row', role: 'link', tabindex: '0',
+        style: 'animation-delay:' + i * 25 + 'ms',
+        onclick: () => { haptic(); location.hash = '#/c/' + c.id; },
+        onkeydown: (e) => { if (e.key === 'Enter') location.hash = '#/c/' + c.id; } },
+        emojiAvatar(c.emoji, c.slug),
+        h('div', { class: 'row-body' },
+          h('div', { class: 'row-title' }, h('span', { class: 't' }, c.title)),
+          h('div', { class: 'row-sub' }, (c.description ? c.description + ' · ' : '') + c.topics_count + ' ' + plural(c.topics_count, ['тема', 'темы', 'тем']))),
+        svg(I.chev))));
+
+    sections.append(
+      actions,
+      h('h2', { class: 'section-title' }, 'Разделы'), catRows,
+      h('h2', { class: 'section-title' }, 'Свежие темы'), topicList('/api/topics'));
+
+    mount([
+      hero({ title: CONFIG.title, description: CONFIG.description, linkText: CONFIG.learnMoreText, linkUrl: CONFIG.learnMoreUrl }),
+      h('label', { class: 'search' }, svg(I.search), input),
+      results, sections,
+      !S.inTelegram ? h('div', { class: 'notice' }, 'Чтобы писать на форуме, ', h('b', null, 'откройте его через бота в Telegram'), '.') : null,
+      S.inTelegram && S.authError ? h('div', { class: 'notice' }, 'Не удалось войти: ' + S.authError) : null
+    ]);
+  }
+
+  // Действие, которое требует входа
+  function requireWrite(fn) {
+    if (!S.inTelegram) return toast('Откройте форум через бота в Telegram', true);
+    if (!S.me) return toast(S.authError || 'Не удалось войти. Откройте приложение заново', true);
+    if (S.me.banned) return toast('Ваш аккаунт заблокирован', true);
+    fn();
+  }
+
+  /* ---------- Страница: раздел ---------- */
+  async function viewCategory(id) {
+    const my = ++navId;
+    loading();
+    let cats;
+    try { cats = await getCats(); } catch (e) { if (my === navId) errorView(e.message, () => viewCategory(id)); return; }
+    if (my !== navId) return;
+    const cat = cats.find((c) => c.id === id);
+    if (!cat) return errorView('Раздел не найден');
+
+    const canCreate = !cat.staff_only || isMod();
+    mount([
+      hero({ small: true, emoji: cat.emoji, seed: cat.slug, title: cat.title, description: cat.description }),
+      canCreate ? h('div', { class: 'list', style: 'margin-top:24px' },
+        actionRow(I.plus, 'Создать тему', () => requireWrite(() => { location.hash = '#/new?c=' + cat.id; }))) :
+        h('div', { class: 'notice' }, 'В этом разделе темы создают только модераторы.'),
+      h('h2', { class: 'section-title' }, 'Темы'),
+      topicList('/api/topics?category=' + cat.id)
+    ]);
+  }
+
+  /* ---------- Страница: тема ---------- */
+  async function viewTopic(id) {
+    const my = ++navId;
+    loading();
+    let data;
+    try { data = await api('/api/topics/' + id); } catch (e) { if (my === navId) errorView(e.message, () => viewTopic(id)); return; }
+    if (my !== navId) return;
+
+    const topic = data.topic;
+    const postsBox = h('div');
+    const moreBtn = h('button', { class: 'load-more', style: 'display:none' }, 'Показать ещё');
+    let offset = 0;
+    const input = h('textarea', { rows: '1', placeholder: 'Ответить…', maxlength: '5000', 'aria-label': 'Ответ' });
+    const sendBtn = h('button', { class: 'send', type: 'button', 'aria-label': 'Отправить', disabled: true }, svg(I.send));
+
+    function addPosts(list) {
+      list.forEach((p) => postsBox.append(postCard(p, topic)));
+      offset += list.length;
+    }
+    addPosts(data.posts);
+    moreBtn.style.display = data.has_more ? 'block' : 'none';
+    moreBtn.addEventListener('click', async () => {
+      moreBtn.disabled = true;
+      try {
+        const more = await api('/api/topics/' + id + '?offset=' + offset);
+        addPosts(more.posts);
+        moreBtn.style.display = more.has_more ? 'block' : 'none';
+      } catch (e) { toast(e.message, true); }
+      moreBtn.disabled = false;
+    });
+
+    // Меню модератора
+    const menu = isMod() ? h('button', { class: 'icon-btn', 'aria-label': 'Действия', onclick: () => sheet([
+      { label: topic.pinned ? 'Открепить тему' : 'Закрепить тему', run: () => modTopic(topic, topic.pinned ? 'unpin' : 'pin') },
+      { label: topic.closed ? 'Открыть тему' : 'Закрыть тему', run: () => modTopic(topic, topic.closed ? 'open' : 'close') },
+      { label: 'Удалить тему', danger: true, run: async () => { if (await confirmBox('Удалить тему целиком?')) modTopic(topic, 'delete'); } }
+    ]) }, svg(I.dots)) : null;
+
+    const meta = h('div', { class: 'topic-meta' },
+      h('span', { style: 'cursor:pointer;color:var(--accent)', onclick: () => { location.hash = '#/c/' + topic.category_id; } }, topic.emoji + ' ' + topic.category_title),
+      topic.pinned ? h('span', { class: 'badge' }, svg(I.pin), 'Закреплено') : null,
+      topic.closed ? h('span', { class: 'badge warn' }, svg(I.lock), 'Закрыта') : null);
+
+    const canReply = canWrite() && (!topic.closed || isMod());
+    let footer = null;
+    if (!S.inTelegram) footer = h('div', { class: 'notice' }, 'Чтобы отвечать, ', h('b', null, 'откройте форум через бота в Telegram'), '.');
+    else if (!S.me) footer = h('div', { class: 'notice' }, 'Не удалось войти: ' + (S.authError || 'неизвестная ошибка'));
+    else if (S.me.banned) footer = h('div', { class: 'notice' }, 'Ваш аккаунт заблокирован.');
+    else if (topic.closed && !isMod()) footer = h('div', { class: 'notice' }, 'Тема закрыта для новых ответов.');
+
+    mount([
+      h('div', { class: 'topic-head' }, h('h1', null, topic.title), menu),
+      meta,
+      postsBox, moreBtn, footer
+    ], canReply);
+
+    if (canReply) {
+      const grow = () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+        sendBtn.disabled = !input.value.trim();
+      };
+      input.addEventListener('input', grow);
+      const submit = async () => {
+        const text = input.value.trim();
+        if (!text || sendBtn.disabled) return;
+        sendBtn.disabled = true;
+        try {
+          const res = await api('/api/topics/' + id + '/posts', { method: 'POST', body: { body: text } });
+          input.value = ''; grow();
+          if (!data.has_more || !moreBtn.offsetParent) {
+            postsBox.append(postCard(res.post, topic));
+            offset++;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+          } else {
+            toast('Ответ отправлен');
+          }
+          haptic('ok');
+        } catch (e) { toast(e.message, true); sendBtn.disabled = false; }
+      };
+      sendBtn.addEventListener('click', submit);
+      composerEl = h('div', { class: 'composer' }, h('div', { class: 'composer-in' }, input, sendBtn));
+      document.body.append(composerEl);
+      postsBox.addEventListener('quote', (e) => {
+        input.value = (input.value ? input.value + ' ' : '') + e.detail;
+        grow(); input.focus();
+      });
+    }
+  }
+
+  async function modTopic(topic, action) {
+    try {
+      await api('/api/topics/' + topic.id + '/mod', { method: 'POST', body: { action } });
+      toast('Готово');
+      if (action === 'delete') location.hash = '#/c/' + topic.category_id;
+      else viewTopic(topic.id);
+    } catch (e) { toast(e.message, true); }
+  }
+
+  function postCard(p, topic) {
+    const mine = S.me && S.me.id === p.user_id;
+    const likeBtn = h('button', { class: 'pill' + (p.liked ? ' on' : ''), 'aria-label': 'Нравится' });
+    const paintLike = () => {
+      likeBtn.className = 'pill' + (p.liked ? ' on' : '');
+      likeBtn.replaceChildren(svg(p.liked ? I.heartOn : I.heart), p.likes > 0 ? String(p.likes) : '');
+    };
+    paintLike();
+    likeBtn.addEventListener('click', () => requireWrite(async () => {
+      const prev = { liked: p.liked, likes: p.likes };
+      p.liked = !p.liked; p.likes += p.liked ? 1 : -1; paintLike(); haptic();
+      try {
+        const r = await api('/api/posts/' + p.id + '/like', { method: 'POST' });
+        p.liked = r.liked; p.likes = r.likes; paintLike();
+      } catch (e) { p.liked = prev.liked; p.likes = prev.likes; paintLike(); toast(e.message, true); }
+    }));
+
+    const replyBtn = (S.me && (!topic.closed || isMod())) ? h('button', { class: 'pill', 'aria-label': 'Ответить',
+      onclick: () => { card.parentElement.dispatchEvent(new CustomEvent('quote', { detail: p.username ? '@' + p.username + ',' : p.name + ',' })); } },
+      svg(I.reply), 'Ответить') : null;
+
+    const more = S.me ? h('button', { class: 'icon-btn', style: 'width:36px;height:36px', 'aria-label': 'Ещё', onclick: () => sheet([
+      !mine ? { label: 'Пожаловаться', run: () => reportPost(p) } : null,
+      (mine || isMod()) ? { label: p.is_first ? 'Удалить тему' : 'Удалить сообщение', danger: true, run: () => deletePost(p, topic, card) } : null,
+      (isMod() && !mine && p.role === 'user') ? { label: 'Заблокировать автора', danger: true, run: () => banUser(p) } : null,
+      (isAdmin() && !mine && p.role !== 'admin') ? { label: p.role === 'mod' ? 'Снять модератора' : 'Назначить модератором', run: () => setRole(p, p.role === 'mod' ? 'user' : 'mod') } : null
+    ]) }, svg(I.dots)) : null;
+
+    const badge = p.role === 'admin' ? h('span', { class: 'badge' }, 'админ') : p.role === 'mod' ? h('span', { class: 'badge' }, 'модератор') : null;
+
+    const card = h('article', { class: 'post' },
+      h('div', { class: 'post-head' },
+        userAvatar(p.name, p.user_id, p.photo_url, 'sm'),
+        h('div', { class: 'post-who' },
+          h('div', { class: 'post-name' }, h('span', { class: 'n' }, p.name), badge),
+          h('div', { class: 'post-time' }, (p.username ? '@' + p.username + ' · ' : '') + ago(p.created_at)))),
+      h('div', { class: 'post-body' }, renderText(p.body)),
+      h('div', { class: 'post-foot' }, likeBtn, replyBtn, h('span', { class: 'pill grow', style: 'padding:0' }, more)));
+    return card;
+  }
+
+  async function reportPost(p) {
+    try {
+      await api('/api/posts/' + p.id + '/report', { method: 'POST', body: {} });
+      toast('Жалоба отправлена модераторам');
+    } catch (e) { toast(e.message, true); }
+  }
+
+  async function deletePost(p, topic, card) {
+    if (!(await confirmBox(p.is_first ? 'Удалить тему целиком?' : 'Удалить сообщение?'))) return;
+    try {
+      const r = await api('/api/posts/' + p.id, { method: 'DELETE' });
+      if (r.topic_deleted) { location.hash = '#/c/' + topic.category_id; toast('Тема удалена'); }
+      else { card.remove(); toast('Сообщение удалено'); }
+    } catch (e) { toast(e.message, true); }
+  }
+
+  async function banUser(p) {
+    if (!(await confirmBox('Заблокировать ' + p.name + '?'))) return;
+    try {
+      await api('/api/users/' + p.user_id + '/ban', { method: 'POST', body: { banned: true } });
+      toast('Пользователь заблокирован');
+    } catch (e) { toast(e.message, true); }
+  }
+
+  async function setRole(p, role) {
+    try {
+      await api('/api/users/' + p.user_id + '/role', { method: 'POST', body: { role } });
+      toast(role === 'mod' ? 'Назначен модератором' : 'Роль снята');
+    } catch (e) { toast(e.message, true); }
+  }
+
+  /* ---------- Страница: новая тема ---------- */
+  async function viewNew(preselect) {
+    const my = ++navId;
+    loading();
+    if (!S.inTelegram || !S.me) { return errorView('Создавать темы можно, открыв форум через бота в Telegram.'); }
+    let cats;
+    try { cats = await getCats(); } catch (e) { if (my === navId) errorView(e.message, () => viewNew(preselect)); return; }
+    if (my !== navId) return;
+
+    const allowed = cats.filter((c) => !c.staff_only || isMod());
+    if (!allowed.length) return errorView('Нет разделов, где вы можете создавать темы.');
+
+    const select = h('select', { class: 'field', 'aria-label': 'Раздел' },
+      allowed.map((c) => h('option', { value: c.id }, c.emoji + '  ' + c.title)));
+    if (preselect && allowed.some((c) => c.id === preselect)) select.value = String(preselect);
+
+    const title = h('input', { class: 'field', type: 'text', maxlength: '120', placeholder: 'О чём тема?', 'aria-label': 'Заголовок', enterkeyhint: 'next' });
+    const body = h('textarea', { class: 'field', maxlength: '5000', placeholder: 'Расскажите подробнее…', 'aria-label': 'Сообщение' });
+    const counter = h('div', { class: 'counter' }, '0 / 5000');
+    const btn = h('button', { class: 'btn-primary', type: 'button', disabled: true }, 'Опубликовать');
+
+    const check = () => {
+      counter.textContent = body.value.length + ' / 5000';
+      btn.disabled = title.value.trim().length < 3 || !body.value.trim();
+    };
+    title.addEventListener('input', check);
+    body.addEventListener('input', check);
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true; btn.textContent = 'Публикуем…';
+      try {
+        const r = await api('/api/topics', { method: 'POST', body: { category_id: Number(select.value), title: title.value, body: body.value } });
+        S.cats = null;
+        haptic('ok');
+        location.replace('#/t/' + r.id);
+      } catch (e) {
+        toast(e.message, true);
+        btn.textContent = 'Опубликовать'; check();
+      }
+    });
+
+    mount([
+      h('h1', { class: 'page-title' }, 'Новая тема'),
+      h('p', { class: 'page-sub' }, 'Пишите понятно и по делу — так вам быстрее ответят.'),
+      h('label', { class: 'field-label' }, 'Раздел'), select,
+      h('label', { class: 'field-label' }, 'Заголовок'), title,
+      h('label', { class: 'field-label' }, 'Сообщение'), body, counter,
+      btn
+    ]);
+  }
+
+  /* ---------- Страница: жалобы ---------- */
+  async function viewReports() {
+    const my = ++navId;
+    loading();
+    if (!isMod()) return errorView('Эта страница только для модераторов.');
+    let data;
+    try { data = await api('/api/reports'); } catch (e) { if (my === navId) errorView(e.message, viewReports); return; }
+    if (my !== navId) return;
+
+    const box = h('div');
+    const resolve = async (r, action, card) => {
+      if (action === 'delete' && !(await confirmBox('Удалить это сообщение?'))) return;
+      try {
+        await api('/api/reports/' + r.id + '/resolve', { method: 'POST', body: { action } });
+        card.remove();
+        if (!box.children.length) box.append(emptyView('Жалоб нет', 'Всё спокойно.'));
+        toast(action === 'delete' ? 'Сообщение удалено' : 'Жалоба отклонена');
+      } catch (e) { toast(e.message, true); }
+    };
+    data.reports.forEach((r) => {
+      const card = h('div', { class: 'report' },
+        h('div', { class: 'report-top' }, 'Автор: ' + r.author_name + ' · жалоба от ' + r.reporter_name + ' · ' + ago(r.created_at)),
+        h('div', { class: 'report-title', onclick: () => { location.hash = '#/t/' + r.topic_id; } }, r.topic_title),
+        h('div', { class: 'report-body' }, r.body),
+        r.reason ? h('div', { class: 'report-reason' }, 'Причина: ' + r.reason) : null,
+        h('div', { class: 'report-actions' },
+          h('button', { onclick: () => resolve(r, 'dismiss', card) }, 'Отклонить'),
+          h('button', { class: 'danger', onclick: () => resolve(r, 'delete', card) }, 'Удалить')));
+      box.append(card);
+    });
+    if (!data.reports.length) box.append(emptyView('Жалоб нет', 'Всё спокойно.'));
+    mount([h('h1', { class: 'page-title' }, 'Жалобы'), box]);
+  }
+
+  /* ---------- Маршрутизатор ---------- */
+  function parentOf(hash) {
+    let m;
+    if ((m = hash.match(/^#\/t\/(\d+)/))) return null;      // определяется историей
+    if (hash.startsWith('#/c/') || hash.startsWith('#/new') || hash.startsWith('#/reports')) return '#/';
+    return null;
+  }
+
+  const history = [];
+  function routeNow() {
+    const hash = location.hash || '#/';
+    window.scrollTo(0, 0);
+    let m;
+    if ((m = hash.match(/^#\/c\/(\d+)$/))) viewCategory(Number(m[1]));
+    else if ((m = hash.match(/^#\/t\/(\d+)$/))) viewTopic(Number(m[1]));
+    else if (hash.startsWith('#/new')) {
+      const q = hash.split('?')[1] || '';
+      const c = new URLSearchParams(q).get('c');
+      viewNew(c ? Number(c) : null);
+    }
+    else if (hash === '#/reports') viewReports();
+    else viewHome();
+
+    // Кнопка «Назад» Telegram
+    try {
+      if (tg && tg.BackButton) {
+        if (hash === '#/' || hash === '' ) tg.BackButton.hide(); else tg.BackButton.show();
+      }
+    } catch (e) {}
+  }
+
+  function goBack() {
+    const hash = location.hash || '#/';
+    if (history.length > 1) { history.pop(); location.hash = history.pop() || '#/'; return; }
+    location.hash = parentOf(hash) || '#/';
+  }
+
+  window.addEventListener('hashchange', () => { history.push(location.hash || '#/'); routeNow(); });
+
+  /* ---------- Тема оформления ---------- */
   function applyTheme() {
     let scheme = 'dark';
     if (tg && tg.colorScheme) scheme = tg.colorScheme;
     else if (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) scheme = 'light';
     document.documentElement.setAttribute('data-theme', scheme);
     const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
-    try {
-      if (tg) { tg.setHeaderColor(bg); tg.setBackgroundColor(bg); }
-    } catch (e) {}
+    try { if (tg) { tg.setHeaderColor(bg); tg.setBackgroundColor(bg); } } catch (e) {}
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', bg);
   }
 
-  /* ---------- Ссылки ---------- */
-  function linkOf(item) { return item.url || ('https://t.me/' + String(item.handle || '').replace(/^@/, '')); }
-
-  function openLink(url) {
-    try {
-      if (tg && /^https:\/\/t\.me\//i.test(url) && tg.openTelegramLink) { tg.openTelegramLink(url); return; }
-      if (tg && tg.openLink) { tg.openLink(url); return; }
-    } catch (e) {}
-    window.open(url, '_blank', 'noopener');
-  }
-
-  function haptic(kind) {
-    try {
-      if (!tg || !tg.HapticFeedback) return;
-      if (kind === 'select') tg.HapticFeedback.selectionChanged();
-      else tg.HapticFeedback.impactOccurred('light');
-    } catch (e) {}
-  }
-
-  /* ---------- Избранное: CloudStorage Telegram + localStorage ---------- */
-  function saveFavs() {
-    const json = JSON.stringify(Array.from(state.favs));
-    try { localStorage.setItem('favs', json); } catch (e) {}
-    try { if (tg && tg.CloudStorage && tg.isVersionAtLeast('6.9')) tg.CloudStorage.setItem('favs', json); } catch (e) {}
-  }
-
-  function loadFavs() {
-    function apply(json) {
+  /* ---------- Старт ---------- */
+  async function start() {
+    document.title = CONFIG.title;
+    if (tg) {
       try {
-        const arr = JSON.parse(json || '[]');
-        if (Array.isArray(arr)) arr.forEach((k) => state.favs.add(k));
+        tg.ready(); tg.expand();
+        tg.onEvent('themeChanged', applyTheme);
+        tg.BackButton.onClick(goBack);
       } catch (e) {}
     }
-    try { apply(localStorage.getItem('favs')); } catch (e) {}
-    render();
-    try {
-      if (tg && tg.CloudStorage && tg.isVersionAtLeast('6.9')) {
-        tg.CloudStorage.getItem('favs', function (err, val) {
-          if (!err && val) { apply(val); render(); }
-        });
-      }
-    } catch (e) {}
-  }
-
-  /* ---------- Аватарки ---------- */
-  const GRADIENTS = [
-    ['#f7971e', '#e65c00'], ['#43c6ac', '#1d8a77'], ['#8e6cf0', '#5a3fc0'],
-    ['#f2709c', '#d1356b'], ['#4aa8f0', '#2b6fd0'], ['#6dd35f', '#35a02b'], ['#f5b73b', '#d98a0b']
-  ];
-  function gradientFor(name) {
-    let h = 0;
-    for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
-    const g = GRADIENTS[h % GRADIENTS.length];
-    return 'linear-gradient(135deg,' + g[0] + ',' + g[1] + ')';
-  }
-
-  function makeAvatar(item) {
-    const av = document.createElement('div');
-    av.className = 'row-avatar';
-    av.style.background = gradientFor(item.name);
-    const letter = document.createElement('span');
-    letter.textContent = (item.name.trim()[0] || '?').toUpperCase();
-    av.appendChild(letter);
-    if (item.icon) {
-      const img = document.createElement('img');
-      img.alt = '';
-      img.loading = 'lazy';
-      img.src = item.icon;
-      img.addEventListener('load', () => { letter.style.display = 'none'; });
-      img.addEventListener('error', () => img.remove());
-      av.appendChild(img);
-    }
-    return av;
-  }
-
-  /* ---------- Строки ---------- */
-  function keyOf(item) { return item.handle || item.url || item.name; }
-
-  function makeRow(item, delay) {
-    const row = document.createElement('div');
-    row.className = 'row';
-    row.tabIndex = 0;
-    row.setAttribute('role', 'link');
-    row.style.animationDelay = Math.min(delay * 25, 250) + 'ms';
-
-    row.appendChild(makeAvatar(item));
-
-    const body = document.createElement('div');
-    body.className = 'row-body';
-    const t = document.createElement('div');
-    t.className = 'row-title';
-    t.textContent = item.name;
-    const s = document.createElement('div');
-    s.className = 'row-sub';
-    s.textContent = (TYPE_LABEL[item.type] || 'Канал') + (item.desc ? ' · ' + item.desc : '');
-    body.append(t, s);
-    row.appendChild(body);
-
-    const actions = document.createElement('div');
-    actions.className = 'row-actions';
-    const fav = document.createElement('button');
-    fav.type = 'button';
-    const isFav = state.favs.has(keyOf(item));
-    fav.className = 'icon-btn' + (isFav ? ' fav-on' : '');
-    fav.setAttribute('aria-label', isFav ? 'Убрать из избранного' : 'В избранное');
-    fav.innerHTML = isFav ? SVG.starOn : SVG.star;
-    fav.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const k = keyOf(item);
-      if (state.favs.has(k)) state.favs.delete(k); else state.favs.add(k);
-      haptic('select');
-      saveFavs();
-      render();
-    });
-    actions.appendChild(fav);
-    actions.insertAdjacentHTML('beforeend', SVG.chevron);
-    row.appendChild(actions);
-
-    const go = () => { haptic(); openLink(linkOf(item)); };
-    row.addEventListener('click', go);
-    row.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
-    return row;
-  }
-
-  function makeActionRow(icon, text, onClick) {
-    const row = document.createElement('div');
-    row.className = 'row action';
-    row.tabIndex = 0;
-    row.setAttribute('role', 'button');
-    const ic = document.createElement('div');
-    ic.className = 'action-icon';
-    ic.innerHTML = icon;
-    const body = document.createElement('div');
-    body.className = 'row-body';
-    const t = document.createElement('div');
-    t.className = 'row-title';
-    t.textContent = text;
-    body.appendChild(t);
-    row.append(ic, body);
-    row.addEventListener('click', () => { haptic(); onClick(); });
-    row.addEventListener('keydown', (e) => { if (e.key === 'Enter') onClick(); });
-    return row;
-  }
-
-  function makeSection(title, count, rows) {
-    const frag = document.createDocumentFragment();
-    const h = document.createElement('h2');
-    h.className = 'section-title';
-    h.textContent = title + ' ';
-    const small = document.createElement('small');
-    small.textContent = count;
-    h.appendChild(small);
-    const list = document.createElement('div');
-    list.className = 'list';
-    rows.forEach((r) => list.appendChild(r));
-    frag.append(h, list);
-    return frag;
-  }
-
-  /* ---------- Рендер ---------- */
-  function matches(item) {
-    if (state.type !== 'all' && item.type !== state.type) return false;
-    if (!state.q) return true;
-    const hay = [item.name, item.handle, item.desc, item.category, TYPE_LABEL[item.type]].join(' ').toLowerCase();
-    return hay.includes(state.q);
-  }
-
-  function render() {
-    const root = $('content');
-    root.textContent = '';
-    const items = CHANNELS.filter(matches);
-    let i = 0;
-
-    // Избранное
-    const favItems = items.filter((it) => state.favs.has(keyOf(it)));
-    if (favItems.length) {
-      root.appendChild(makeSection('Избранное', favItems.length, favItems.map((it) => makeRow(it, i++))));
-    }
-
-    // Действия (только без поиска)
-    if (!state.q && state.type === 'all') {
-      const actions = [makeActionRow(SVG.plus, CONFIG.suggestText, () => openLink(CONFIG.suggestUrl))];
-      if (CONFIG.shareUrl) {
-        actions.push(makeActionRow(SVG.share, CONFIG.shareText, () => {
-          const url = 'https://t.me/share/url?url=' + encodeURIComponent(CONFIG.shareUrl) + '&text=' + encodeURIComponent(CONFIG.shareMessage);
-          openLink(url);
-        }));
-      }
-      const list = document.createElement('div');
-      list.className = 'list';
-      list.style.marginTop = '28px';
-      actions.forEach((a) => list.appendChild(a));
-      root.appendChild(list);
-    }
-
-    // Категории (порядок — по первому появлению в каталоге)
-    const order = [];
-    const groups = {};
-    items.forEach((it) => {
-      const c = it.category || 'Прочее';
-      if (!groups[c]) { groups[c] = []; order.push(c); }
-      groups[c].push(it);
-    });
-    order.forEach((c) => {
-      root.appendChild(makeSection(c, groups[c].length, groups[c].map((it) => makeRow(it, i++))));
-    });
-
-    if (!items.length) {
-      const e = document.createElement('div');
-      e.className = 'empty';
-      e.innerHTML = SVG.empty;
-      e.appendChild(document.createTextNode('Ничего не найдено'));
-      root.appendChild(e);
-    }
-  }
-
-  function renderChips() {
-    const box = $('chips');
-    box.textContent = '';
-    FILTERS.forEach((f) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'chip';
-      b.textContent = f.label;
-      b.setAttribute('aria-pressed', String(state.type === f.id));
-      b.addEventListener('click', () => {
-        state.type = f.id;
-        haptic('select');
-        renderChips();
-        render();
-      });
-      box.appendChild(b);
-    });
-  }
-
-  /* ---------- Инициализация ---------- */
-  function init() {
-    document.title = CONFIG.title;
-    $('title').textContent = CONFIG.title;
-    $('desc').textContent = CONFIG.description;
-    $('heroInitial').textContent = (CONFIG.title.trim()[0] || 'K').toUpperCase();
-    $('footer').textContent = CONFIG.footer;
-
-    const lm = $('learnMore');
-    lm.textContent = CONFIG.learnMoreText + ' ›';
-    lm.addEventListener('click', () => openLink(CONFIG.learnMoreUrl));
-    lm.addEventListener('keydown', (e) => { if (e.key === 'Enter') openLink(CONFIG.learnMoreUrl); });
-
-    const img = $('heroImg');
-    img.addEventListener('error', () => img.remove());
-    img.addEventListener('load', () => { $('heroInitial').style.display = 'none'; });
-    if (img.complete && img.naturalWidth > 0) $('heroInitial').style.display = 'none';
-
-    const q = $('q');
-    q.addEventListener('input', () => {
-      state.q = q.value.trim().toLowerCase();
-      $('searchBox').classList.toggle('has-text', !!q.value);
-      render();
-    });
-    q.addEventListener('keydown', (e) => { if (e.key === 'Enter') q.blur(); });
-    $('clear').addEventListener('click', (e) => {
-      e.preventDefault();
-      q.value = ''; state.q = '';
-      $('searchBox').classList.remove('has-text');
-      render(); q.focus();
-    });
-
-    if (tg) {
-      try { tg.ready(); tg.expand(); tg.onEvent('themeChanged', applyTheme); } catch (e) {}
-    }
     applyTheme();
-    renderChips();
-    loadFavs();
+    loading();
+    history.push(location.hash || '#/');
+    await restoreSession();
+    routeNow();
   }
 
-  init();
+  start();
 })();
 </script>
 </body>
